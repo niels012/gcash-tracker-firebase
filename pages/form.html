@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GCash Transaction Tracker - Add Transaction</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/form.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <rect x="2" y="2" width="20" height="20" rx="2"/>
+                    <path d="M12 2v20M2 12h20"/>
+                </svg>
+                <span>GCash Tracker</span>
+            </div>
+            <div class="nav-links">
+                <a href="../index.html" class="nav-link">Dashboard</a>
+                <a href="transactions.html" class="nav-link">Transactions</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="form-header">
+            <a href="../index.html" class="back-link">← Back to Dashboard</a>
+            <h1>Add Transaction</h1>
+            <p class="subtitle">Record a new GCash transaction</p>
+        </div>
+
+        <div class="form-container">
+            <form id="transactionForm" class="transaction-form">
+                <div class="form-group">
+                    <label for="date">Date</label>
+                    <input type="date" id="date" name="date" required disabled>
+                    <small>Automatically set to today</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="transaction">Transaction Type</label>
+                    <select id="transaction" name="transaction" required>
+                        <option value="">Select transaction type</option>
+                        <option value="cash-in">Cash In</option>
+                        <option value="cash-out">Cash Out</option>
+                        <option value="load-bill">Load/Bill</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="mobileNumber">Mobile Number</label>
+                    <input type="text" id="mobileNumber" name="mobileNumber" placeholder="09xxxxxxxxx" maxlength="11" pattern="[0-9]{11}" required>
+                    <small>11 digit mobile number</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="amount">Amount</label>
+                    <div class="input-with-currency">
+                        <span>₱</span>
+                        <input type="number" id="amount" name="amount" placeholder="0.00" step="0.01" min="0" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="fee">Fee/Charge</label>
+                    <div class="input-with-currency">
+                        <span>₱</span>
+                        <input type="number" id="fee" name="fee" placeholder="0.00" step="0.01" min="0" readonly>
+                    </div>
+                    <small id="feeNote">Fee will be calculated automatically</small>
+                </div>
+
+                <div class="form-group hidden" id="referenceGroup">
+                    <label for="referenceNumber">Reference Number</label>
+                    <input type="text" id="referenceNumber" name="referenceNumber" placeholder="Enter reference number">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-large">Submit Transaction</button>
+            </form>
+        </div>
+    </main>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
+
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/form.js"></script>
+</body>
+</html>
