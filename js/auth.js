@@ -1,18 +1,14 @@
-// AUTHENTICATION MANAGEMENT
 var currentUser = null;
 
-// Wait for Firebase to be ready
 function initAuth() {
     var auth = firebase.auth();
     
-    // Monitor authentication state
     auth.onAuthStateChanged(function(user) {
         if (user) {
             currentUser = user;
             document.getElementById('loginModal').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
             
-            // Initialize app with user data
             if (typeof tracker !== 'undefined') {
                 tracker.setUserId(user.uid);
             }
@@ -23,7 +19,6 @@ function initAuth() {
         }
     });
 
-    // SIGN UP TOGGLE
     var signUpToggle = document.getElementById('signUpToggle');
     if (signUpToggle) {
         signUpToggle.addEventListener('click', function() {
@@ -32,7 +27,6 @@ function initAuth() {
         });
     }
 
-    // BACK TO LOGIN
     var backToLogin = document.getElementById('backToLogin');
     if (backToLogin) {
         backToLogin.addEventListener('click', function(e) {
@@ -42,7 +36,6 @@ function initAuth() {
         });
     }
 
-    // SIGNUP FORM
     var signupForm = document.getElementById('signupForm');
     if (signupForm) {
         signupForm.addEventListener('submit', function(e) {
@@ -73,7 +66,6 @@ function initAuth() {
         });
     }
 
-    // LOGIN FORM
     var loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', function(e) {
@@ -93,7 +85,6 @@ function initAuth() {
         });
     }
 
-    // SIGN OUT
     var signOutBtn = document.getElementById('signOutBtn');
     if (signOutBtn) {
         signOutBtn.addEventListener('click', function() {
@@ -108,7 +99,6 @@ function initAuth() {
     }
 }
 
-// ERROR/SUCCESS NOTIFICATIONS
 function showAuthError(message) {
     var notification = document.createElement('div');
     notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #ef476f; color: white; padding: 1rem 1.5rem; border-radius: 6px; box-shadow: 0 8px 24px rgba(239, 71, 111, 0.3); z-index: 1000; font-weight: 600; max-width: 400px; animation: slideIn 0.3s ease;';
@@ -133,7 +123,6 @@ function showAuthSuccess(message) {
     }, 3000);
 }
 
-// Add animation styles
 if (!document.getElementById('authAnimationStyles')) {
     var style = document.createElement('style');
     style.id = 'authAnimationStyles';
@@ -141,7 +130,6 @@ if (!document.getElementById('authAnimationStyles')) {
     document.head.appendChild(style);
 }
 
-// Initialize auth when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initAuth);
 } else {

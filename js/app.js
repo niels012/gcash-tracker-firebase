@@ -1,4 +1,3 @@
-// FEE STRUCTURE
 var feeStructure = {
     '1-100': 5, '101-500': 10, '501-1000': 15, '1001-1500': 20, '1501-2000': 30,
     '2001-2500': 40, '2501-3000': 50, '3001-3600': 60, '3601-4000': 70, '4001-4500': 80,
@@ -8,7 +7,6 @@ var feeStructure = {
     '11501-12000': 230, '12001-12500': 240, '12501-13000': 250, '13001-13500': 260
 };
 
-// TRACKER CLASS
 function GCashTracker() {
     this.userId = null;
     this.transactions = [];
@@ -198,7 +196,6 @@ GCashTracker.prototype.getTransactionTypeColor = function(type) {
     return colors[type] || '#00b4d8';
 };
 
-// Initialize tracker
 var tracker = new GCashTracker();
 
 function showNotification(message, type) {

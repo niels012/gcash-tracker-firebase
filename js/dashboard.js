@@ -1,25 +1,11 @@
-let feeChart = null;
+var feeChart = null;
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Wait for Firebase initialization
-    setTimeout(() => {
-        if (tracker && tracker.userId) {
-            initializeDashboard();
-        }
-    }, 500);
-});
-
-function initializeDashboard() {
-    // Set up real-time listeners
-    tracker.onDataChange(() => {
-        updateBalances();
-        updateRecentTransactions();
-        if (feeChart) {
-            const period = document.querySelector('.period-btn.active').getAttribute('data-period');
-            updateFeeChart(period);
-        }
-    });
-
+function initDashboard() {
+    if (typeof tracker === 'undefined') {
+        setTimeout(initDashboard, 100);
+        return;
+    }
+    
     updateBalances();
     updateRecentTransactions();
     initializeFeeChart('day');
@@ -30,58 +16,57 @@ function updateBalances() {
     document.getElementById('gcashBalance').textContent = tracker.formatCurrency(tracker.gcashBalance);
     document.getElementById('cashOnHand').textContent = tracker.formatCurrency(tracker.cashOnHand);
     
-    const todayTransactions = tracker.getTodayTransactions();
-    const todayFees = tracker.getTotalFees(todayTransactions);
+    var todayTransactions = tracker.getTodayTransactions();
+    var todayFees = tracker.getTotalFees(todayTransactions);
     document.getElementById('totalFees').textContent = tracker.formatCurrency(todayFees);
 }
 
 function updateRecentTransactions() {
-    const container = document.getElementById('transactionsList');
-    const todayTransactions = tracker.getTodayTransactions();
+    var container = document.getElementById('transactionsList');
+    var todayTransactions = tracker.getTodayTransactions();
 
     if (todayTransactions.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <p>No transactions yet. Add your first transaction to get started.</p>
-            </div>
-        `;
+        container.innerHTML = '<div class="empty-state"><p>No transactions yet. Add your first transaction to get started.</p></div>';
         return;
     }
 
-    const recentTransactions = todayTransactions.slice(-3).reverse();
-    container.innerHTML = recentTransactions.map(transaction => {
-        const amount = transaction.type === 'cash-out' 
-            ? `+${tracker.formatCurrency(transaction.amount)}`
-            : `-${tracker.formatCurrency(transaction.amount)}`;
-        const amountClass = transaction.type === 'cash-out' ? '' : 'negative';
+    var recentTransactions = todayTransactions.slice(-3).reverse();
+    var html = '';
+    for (var i = 0; i < recentTransactions.length; i++) {
+        var transaction = recentTransactions[i];
+        var amount = transaction.type === 'cash-out' 
+            ? '+' + tracker.formatCurrency(transaction.amount)
+            : '-' + tracker.formatCurrency(transaction.amount);
+        var amountClass = transaction.type === 'cash-out' ? '' : 'negative';
 
-        return `
-            <div class="transaction-item">
-                <div class="transaction-info">
-                    <div class="transaction-type">${tracker.getTransactionTypeLabel(transaction.type)}</div>
-                    <div class="transaction-meta">${transaction.mobileNumber} • ${transaction.timestamp}</div>
-                </div>
-                <div class="transaction-amount ${amountClass}">${amount}</div>
-            </div>
-        `;
-    }).join('');
+        html += '<div class="transaction-item">' +
+                '<div class="transaction-info">' +
+                '<div class="transaction-type">' + tracker.getTransactionTypeLabel(transaction.type) + '</div>' +
+                '<div class="transaction-meta">' + transaction.mobileNumber + ' • ' + transaction.timestamp + '</div>' +
+                '</div>' +
+                '<div class="transaction-amount ' + amountClass + '">' + amount + '</div>' +
+                '</div>';
+    }
+    container.innerHTML = html;
 }
 
 function setupEventListeners() {
-    const periodBtns = document.querySelectorAll('.period-btn');
-    periodBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            periodBtns.forEach(b => b.classList.remove('active'));
+    var periodBtns = document.querySelectorAll('.period-btn');
+    for (var i = 0; i < periodBtns.length; i++) {
+        periodBtns[i].addEventListener('click', function(e) {
+            for (var j = 0; j < periodBtns.length; j++) {
+                periodBtns[j].classList.remove('active');
+            }
             e.target.classList.add('active');
-            const period = e.target.getAttribute('data-period');
+            var period = e.target.getAttribute('data-period');
             updateFeeChart(period);
         });
-    });
+    }
 }
 
 function initializeFeeChart(period) {
-    const ctx = document.getElementById('feeChart').getContext('2d');
-    const data = getChartData(period);
+    var ctx = document.getElementById('feeChart').getContext('2d');
+    var data = getChartData(period);
 
     feeChart = new Chart(ctx, {
         type: 'line',
@@ -101,30 +86,6 @@ function initializeFeeChart(period) {
                     pointBorderColor: '#0a1428',
                     pointBorderWidth: 2,
                     pointHoverRadius: 7
-                },
-                {
-                    label: 'Cash In',
-                    data: data.cashIn,
-                    borderColor: '#06d6a0',
-                    backgroundColor: 'rgba(6, 214, 160, 0.05)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 4,
-                    pointBackgroundColor: '#06d6a0',
-                    borderDash: [5, 5]
-                },
-                {
-                    label: 'Cash Out',
-                    data: data.cashOut,
-                    borderColor: '#ef476f',
-                    backgroundColor: 'rgba(239, 71, 111, 0.05)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 4,
-                    pointBackgroundColor: '#ef476f',
-                    borderDash: [5, 5]
                 }
             ]
         },
@@ -164,64 +125,61 @@ function initializeFeeChart(period) {
 }
 
 function updateFeeChart(period) {
-    const data = getChartData(period);
+    var data = getChartData(period);
     
     if (feeChart) {
         feeChart.data.labels = data.labels;
         feeChart.data.datasets[0].data = data.fees;
-        feeChart.data.datasets[1].data = data.cashIn;
-        feeChart.data.datasets[2].data = data.cashOut;
         feeChart.update();
     }
 
-    const labels = { 'day': 'Today', 'week': 'This Week', 'month': 'This Month' };
+    var labels = { 'day': 'Today', 'week': 'This Week', 'month': 'This Month' };
     document.getElementById('feesPeriod').textContent = labels[period];
 }
 
 function getChartData(period) {
-    let transactions = [];
-    let labels = [];
+    var transactions = [];
+    var labels = [];
 
     if (period === 'day') {
         transactions = tracker.getTodayTransactions();
-        const today = new Date();
-        for (let i = 23; i >= 0; i--) {
-            const time = new Date(today);
+        var today = new Date();
+        for (var i = 23; i >= 0; i--) {
+            var time = new Date(today);
             time.setHours(today.getHours() - i);
             labels.push(time.getHours() + ':00');
         }
     } else if (period === 'week') {
         transactions = tracker.getWeekTransactions();
-        const today = new Date();
-        for (let i = 6; i >= 0; i--) {
-            const date = new Date(today);
+        var today = new Date();
+        for (var i = 6; i >= 0; i--) {
+            var date = new Date(today);
             date.setDate(today.getDate() - i);
             labels.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
         }
     } else if (period === 'month') {
         transactions = tracker.getMonthTransactions();
-        const today = new Date();
-        for (let i = 29; i >= 0; i--) {
-            const date = new Date(today);
+        var today = new Date();
+        for (var i = 29; i >= 0; i--) {
+            var date = new Date(today);
             date.setDate(today.getDate() - i);
             labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
         }
     }
 
-    const fees = new Array(labels.length).fill(0);
-    const cashIn = new Array(labels.length).fill(0);
-    const cashOut = new Array(labels.length).fill(0);
+    var fees = new Array(labels.length).fill(0);
 
-    transactions.forEach(transaction => {
-        let index = -1;
-        const transDate = new Date(transaction.date);
+    for (var i = 0; i < transactions.length; i++) {
+        var transaction = transactions[i];
+        var index = -1;
+        var transDate = new Date(transaction.date);
 
         if (period === 'day') {
-            const hour = transDate.getHours();
-            const currentHour = new Date().getHours();
+            var hour = transDate.getHours();
+            var currentHour = new Date().getHours();
             index = (hour - currentHour + 24) % 24;
         } else {
-            const daysDiff = Math.floor((new Date() - transDate) / (1000 * 60 * 60 * 24));
+            var daysDiff = Math.floor((new Date() - transDate) / (1000 * 60 * 60 * 24));
             if (period === 'week' && daysDiff < 7) {
                 index = 6 - daysDiff;
             } else if (period === 'month' && daysDiff < 30) {
@@ -231,13 +189,14 @@ function getChartData(period) {
 
         if (index >= 0 && index < labels.length) {
             fees[index] += transaction.fee;
-            if (transaction.type === 'cash-in' || transaction.type === 'load-bill') {
-                cashIn[index] += transaction.amount;
-            } else if (transaction.type === 'cash-out') {
-                cashOut[index] += transaction.amount;
-            }
         }
-    });
+    }
 
-    return { labels, fees, cashIn, cashOut };
+    return { labels: labels, fees: fees };
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDashboard);
+} else {
+    initDashboard();
 }
